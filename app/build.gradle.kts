@@ -67,9 +67,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     // For geographic location
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
-    implementation("com.google.accompanist:accompanist-permissions:0.17.0")
-    implementation("com.google.accompanist:accompanist-location:0.17.0")
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:19.0.0")
+    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
+    //implementation("com.google.accompanist:accompanist-permissions:0.17.0")
+    //implementation("com.google.accompanist:accompanist-location:0.17.0")
+    //implementation("com.google.android.gms:play-services-location:21.0.1")
 
 }
