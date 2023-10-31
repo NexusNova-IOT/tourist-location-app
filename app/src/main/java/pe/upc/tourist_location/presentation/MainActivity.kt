@@ -9,17 +9,28 @@ import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.google.android.gms.location.LocationCallback
@@ -35,6 +46,8 @@ class MainActivity : ComponentActivity() {
 
     private var currentLocation by mutableStateOf<Location?>(null)
 
+    private var hasRequestedPermissions by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -44,11 +57,20 @@ class MainActivity : ComponentActivity() {
                     ShowLocation(currentLocation)
                 }
             } else {
-                requestLocationPermission()
-                if (hasLocationPermission())
-                    LocationProvider {
-                        ShowLocation(currentLocation)
-                    }
+                if (!hasRequestedPermissions) {
+                    requestLocationPermission()
+                }
+                NoPermissionMessage()
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                hasRequestedPermissions = true
             }
         }
     }
@@ -68,7 +90,8 @@ class MainActivity : ComponentActivity() {
     private fun hasLocationPermission(): Boolean {
         val fineLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
         val coarseLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-        return fineLocationPermission == PackageManager.PERMISSION_GRANTED && coarseLocationPermission == PackageManager.PERMISSION_GRANTED
+        hasRequestedPermissions = fineLocationPermission == PackageManager.PERMISSION_GRANTED && coarseLocationPermission == PackageManager.PERMISSION_GRANTED;
+        return hasRequestedPermissions;
     }
 
     private fun requestLocationPermission() {
@@ -99,6 +122,35 @@ class MainActivity : ComponentActivity() {
         val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
+    @Composable
+    fun NoPermissionMessage() {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "The app needs location permission.",
+                fontSize = 16.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = { requestLocationPermission() },
+                modifier = Modifier.padding(8.dp),
+            ) {
+                Text(
+                    text = "Request location permission",
+                    fontSize = 17.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(5.dp)
+                )
+            }
+
+        }
+    }
+
+
 
     @Composable
     fun LocationProvider(content: @Composable () -> Unit) {
@@ -111,7 +163,7 @@ class MainActivity : ComponentActivity() {
         println(location)
         if (location != null) {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
                 text = "Latitude: ${location.latitude}, Longitude: ${location.longitude}"
