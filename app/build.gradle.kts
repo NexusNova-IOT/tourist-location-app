@@ -68,9 +68,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     // For geographic location
     implementation("com.google.android.gms:play-services-location:19.0.0")
-    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
-    //implementation("com.google.accompanist:accompanist-permissions:0.17.0")
-    //implementation("com.google.accompanist:accompanist-location:0.17.0")
-    //implementation("com.google.android.gms:play-services-location:21.0.1")
-
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
