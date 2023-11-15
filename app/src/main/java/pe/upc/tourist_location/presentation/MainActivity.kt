@@ -8,7 +8,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +19,9 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import pe.upc.tourist_location.ui.NoPermissionScreen
-import pe.upc.tourist_location.ui.LocationScreen
+import pe.upc.tourist_location.location.model.TouristLocation
+import pe.upc.tourist_location.location.services.LocationClient
+import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     private val locationManager: LocationManager by lazy {
@@ -34,7 +34,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        thread {
+            LocationClient.locationService.updateLocation("", TouristLocation(0.0, 0.0))
+        }
 
+        /*
         setContent {
             if (hasLocationPermission()) {
                 LocationProvider {
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity() {
                 NoPermissionScreen(requestLocationPermission = ::requestLocationPermission)
             }
         }
+        */
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
