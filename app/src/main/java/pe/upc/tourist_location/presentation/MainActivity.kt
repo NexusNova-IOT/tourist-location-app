@@ -21,6 +21,10 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import pe.upc.tourist_location.location.model.TouristLocation
 import pe.upc.tourist_location.location.services.LocationClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.HttpException
+import retrofit2.Response
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
@@ -33,11 +37,43 @@ class MainActivity : ComponentActivity() {
     private var hasRequestedPermissions by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val token = "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImE2YzYzNTNmMmEzZWMxMjg2NTA1MzBkMTVmNmM0Y2Y0NTcxYTQ1NTciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vbGlmZXRyYXZlbC1hcHAiLCJhdWQiOiJsaWZldHJhdmVsLWFwcCIsImF1dGhfdGltZSI6MTcwMDEwNTEzMiwidXNlcl9pZCI6IjJpRmNqeTJVaHhOdkJET1pNclFkMlZEb0lzeTIiLCJzdWIiOiIyaUZjankyVWh4TnZCRE9aTXJRZDJWRG9Jc3kyIiwiaWF0IjoxNzAwMTA1MTMyLCJleHAiOjE3MDAxMDg3MzIsImVtYWlsIjoiaW90QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJpb3RAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.pmAnl6682bgS7Me3J86GS79BG4Nd9bu0N872_GzsnVF7uDtoomr_FuSMmZzmdO5mLxa12sL8PbC2KhNjVuCO2cJELisX4cv37SLh7KJGK2W68P1N5mD0q6w_b-zO-7jNTcVSU8pCfS00XRVCKZxSOFRy4T-eZNcstSBHcFwzz-Q5E6URK3KIWp2tyxtE8eBm1KbZEt0niQ9FY48QcypQpq_Yk8P7tdpLTJOqpaSkEGU0agtVj-_UgtrwM62cutzFP5ycvMjnKhG0RTo38d7OSXKDe322l8SzCvta72mDSZbiuPH-JYERIA9BC4bej3yrL57KPfdV3GzRMl0MxWCetQ"
         super.onCreate(savedInstanceState)
         thread {
-            LocationClient.locationService.updateLocation("", TouristLocation(0.0, 0.0))
-        }
+            // UPC
+            //-12.05302653768251
+            //-76.94262350458438
+            val locationData = TouristLocation(latitude = -12.05302653768251, longitude = -76.94262350458438)
 
+            val locationService = LocationClient.create()
+            val call = locationService.updateLocation(token, locationData)
+
+            //val call = locationService.updateLocation("your_token_here", locationData)
+
+            call.enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        if (response.code() == 200) {
+                            println("Operación exitosa.")
+                        } else {
+                            println("Error en la llamada: ${response.code()}")
+                        }
+                    } else {
+                        println("Error en la llamada: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    println("Error en la llamada: ${t.message}")
+                    println(t.stackTraceToString())
+
+                    if (t is HttpException) {
+                        val errorBody = t.response()?.errorBody()?.string()
+                        println("Error body: $errorBody")
+                    }
+                }
+            })
+        }
         /*
         setContent {
             if (hasLocationPermission()) {
