@@ -1,3 +1,3 @@
 package pe.upc.tourist_location.location.model
 
-data class AuthRequest(val email: String, val password: String)
+data class AuthRequest(val email: String, val password: String, val returnSecureToken: Boolean = true)
